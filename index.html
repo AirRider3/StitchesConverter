@@ -1,0 +1,115 @@
+<html>
+<head>
+	<link href='http://fonts.googleapis.com/css?family=Cabin:400,700' rel='stylesheet' type='text/css'>
+	<meta charset="utf-8">
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+	<script>window.jQuery || document.write('<script src="jquery-1.9.1.min.js"><\/script>');</script>
+	<style>
+
+		body {
+			padding: 0px;
+			margin: 0px;
+			background-color: #e0e0e0;
+		}
+
+		#wrapper {
+			margin:auto;
+			margin: 100px auto 100px;
+			width: 600px;
+			background-color: #ffffff;
+			overflow: hidden;
+		}
+
+		#ssInput {
+			margin: 20px;
+			height: 300px;
+			width: 560px;
+		}
+
+		h1 {
+			margin: 20px;
+			color: #444444;
+			font-family: 'Cabin', sans-serif;
+			font-size: 40px;
+		}
+
+		p {
+			font-family: 'Cabin', sans-serif;
+			font-size: 14px;
+			color: #555555;
+		}
+
+		.button {
+			padding: 20px;
+			display: block;
+			background-color: #0088ff;
+			color: white;
+			margin: 20px;
+			font-family: 'Cabin', sans-serif;
+			cursor: pointer;
+		}
+
+	</style>
+</head>
+<body>
+	<div id="wrapper">
+		<h1>CSS SpriteSheet to JSON-Hash SpriteSheet Converter</h1>
+		<p style="margin:20px">Generate CSS SpriteSheet <a target="_blank" href="http://draeton.github.io/stitches/">here</a> -> use this converter to transform it to a JSON-Hash SpriteShet -> ¿...? -> PROFIT.</p>
+		<p style="margin:20px">Note: in meta, size has to be set manually, if needed.</p>
+		<textarea id="ssInput"></textarea>
+		<p id="convertButton" class="button">Convert</p>
+	</div>
+	<script>
+
+		var convertButton = $('#convertButton');
+		var inputField = $('#ssInput');
+		var ss = "";
+		var result = "";
+
+		convertButton.on('click', function () {
+			ss = inputField.val().trim();
+
+			var frames = {};
+			var meta = {"app": "http://bluecodestudio.com",
+				"version": "1.0",
+				"format": "RGBA8888",
+				"size": {"w":'!!manually insert width here!!',"h":'!!manually instert height here!!'},
+				"scale": "1"
+			};
+
+			ss = ss.slice(ss.indexOf('(')+1);
+			meta.image = ss.slice(0,ss.indexOf(')'));
+			ss = ss.slice(ss.indexOf('}')+1).trim();
+
+			while(ss.indexOf('sprite') != -1) {
+				//There are still some sprite to gather
+				ss = ss.slice(ss.indexOf('-')+1);
+				var spriteName = ss.slice(0, ss.indexOf(' '));
+				var spriteInfo = {rotated:false,trimmed:false};
+				spriteInfo.frame = {};
+				ss = ss.slice(ss.indexOf(':')+1).trim();
+				spriteInfo.frame.w = parseInt( ss.slice(0,ss.indexOf('px')),10 );
+				ss = ss.slice(ss.indexOf(':')+1).trim();
+				spriteInfo.frame.h = parseInt( ss.slice(0,ss.indexOf('px')),10 );
+				ss = ss.slice(ss.indexOf(':')+1).trim();
+				spriteInfo.frame.x = -parseInt( ss.slice(0,ss.indexOf('px')),10 );
+				ss = ss.slice(ss.indexOf('px')+2).trim();
+				spriteInfo.frame.y = -parseInt( ss.slice(0,ss.indexOf('px')),10 );
+				
+				spriteInfo.sourceSize = {w:spriteInfo.frame.w, h:spriteInfo.frame.h};
+				spriteInfo.spriteSourceSize = {x:0, y:0, w:spriteInfo.frame.w, h:spriteInfo.frame.h};
+
+				ss = ss.slice(ss.indexOf('}')+1).trim();
+
+				frames[spriteName] = spriteInfo;
+
+			}
+			var jsonConversion = JSON.stringify({frames:frames, meta:meta});
+
+			inputField.val(jsonConversion);
+
+		});
+
+	</script>
+</body>
+</html>
